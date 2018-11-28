@@ -1,0 +1,10 @@
+<!-- user.html -->
+<h1>Hello, {{name}}!</h1>
+
+<h2>Today's top headers in {{section}} are...</h2>
+<ol type="1" style="font-weight: bold;">
+{% for article in articles.items() %}
+    <li>{{article[0]}} {{" ("}}{{article[1]}}{{")"}}</li>
+    <br>
+{% endfor %}
+</ol>
