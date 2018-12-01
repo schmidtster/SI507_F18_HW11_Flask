@@ -43,16 +43,25 @@ def get_nyt_request(section):
     baseurl = "https://api.nytimes.com/svc/topstories/v2/"
     baseurl_nyt = baseurl + section + ".json"
     params_d_nyt = {'api_key': api_key}
-    print(baseurl_nyt)
     unq_id = params_unique_combination(baseurl_nyt, params_d_nyt)
     if unq_id in nyt_CACHE_DICTION:
         if is_fresh(nyt_CACHE_DICTION[unq_id]):
             print("Getting data from nyt cache")
             return nyt_CACHE_DICTION[unq_id]
+        else:
+            print("Getting request from nyt API")
+            request_nyt = requests.get(baseurl_nyt, params=params_d_nyt)
+            requested_nyt_diction = json.loads(request_nyt.text)
+            nyt_CACHE_DICTION[unq_id] = requested_nyt_diction
+            nyt_CACHE_DICTION[unq_id]['cache_timestamp'] = datetime.now().timestamp()
+            open_cache_nyt2 = open(CACHE_FILE, 'w')
+            create_dump_nyt = json.dumps(nyt_CACHE_DICTION)
+            open_cache_nyt2.write(create_dump_nyt)
+            open_cache_nyt2.close()
+            return nyt_CACHE_DICTION[unq_id]
     else:
         print("Getting request from nyt API")
         request_nyt = requests.get(baseurl_nyt, params=params_d_nyt)
-        print(request_nyt)
         requested_nyt_diction = json.loads(request_nyt.text)
         nyt_CACHE_DICTION[unq_id] = requested_nyt_diction
         nyt_CACHE_DICTION[unq_id]['cache_timestamp'] = datetime.now().timestamp()
@@ -71,6 +80,7 @@ def hello_name(name, section="technology"):
     search_param_section = first_letter + rest_of_section
     articles = {}
     response = get_nyt_request(lowercase_section)
+    print(response)
     count = 0
     for each_article in response["results"]:
         if each_article["section"] == search_param_section:
@@ -86,4 +96,4 @@ def hello_name(name, section="technology"):
 if __name__ == '__main__':
     print('starting Flask app', app.name)
     app.run(debug=True)
-    hello_name("Hannah", "Home")
+
